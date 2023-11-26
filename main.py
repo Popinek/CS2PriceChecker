@@ -47,6 +47,7 @@ def show_case_prices():
     # Load saved cases from the file
     saved_cases = load_saved_cases()
 
+
     if not saved_cases:
         result_label.config(text="No saved cases found.")
         return
@@ -120,6 +121,8 @@ if __name__ == '__main__':
     # Create the main window
     window = tk.Tk()
     window.title("CS:GO Case Prices")
+    # Set the size of the main window
+    window.geometry("525x850")
 
     # Create an entry widget for the case name
     case_entry_label = tk.Label(window, text="Enter Case Name:")
@@ -130,26 +133,32 @@ if __name__ == '__main__':
     add_case_button = tk.Button(window, text="Add Case", command=add_case)
     remove_case_button = tk.Button(window, text="Remove Case", command=remove_case)
 
+    # Pack the buttons to the top of the window
+    case_entry_label.pack(side=tk.TOP, padx=10, pady=25)
+    case_entry.pack(side=tk.TOP, padx=10, pady=20)
+    add_case_button.pack(side=tk.TOP, padx=10, pady=10)
+    remove_case_button.pack(side=tk.TOP, padx=10, pady=5)
+    get_prices_button.pack(side=tk.TOP, padx=10, pady=15)
+
     # Create a listbox to display added cases
-    cases_listbox_label = tk.Label(window, text="Added Cases:")
     cases_listbox = tk.Listbox(window, selectmode=tk.SINGLE, height=len(csgo_cases))
+    cases_listbox.pack(side=tk.LEFT, padx=10, pady=10, anchor='n')
 
     # Set the initial height of the listbox
-    cases_listbox.configure(height=len(cases_listbox.get(0, tk.END)))
+    cases_listbox.configure(width=35, height=len(cases_listbox.get(0, tk.END)))
 
     # Create a label widget to display the result
-    result_label = tk.Label(window, text="")
+    result_label = tk.Label(window, text="", height=len(csgo_cases), pady=5, font=("Helvetica", 10))
+    result_label.pack(side=tk.LEFT, padx=10, pady=12, anchor='n')
 
     # Pack the widgets into the window
     case_entry_label.pack(pady=5)
     case_entry.pack(pady=5)
     add_case_button.pack(pady=5)
     remove_case_button.pack(pady=5)
-    cases_listbox_label.pack(pady=5)
-    cases_listbox.pack(pady=5)
     get_prices_button.pack(pady=5)
 
-    result_label.pack(pady=5)
+
 
     # Right-click functionality
     #cases_listbox.bind("<Button-3>", lambda event: remove_case())

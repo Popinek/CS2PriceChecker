@@ -36,17 +36,15 @@ def get_case_price(case_name):
         if cost is not None:
             return cost
 
+
+
     print(f"Debug: Unable to find case data for {case_name}.")
     return None
-
-
-
 
 
 def show_case_prices():
     # Load saved cases from the file
     saved_cases = load_saved_cases()
-
 
     if not saved_cases:
         result_label.config(text="No saved cases found.")
@@ -55,13 +53,19 @@ def show_case_prices():
     prices_text = ""
 
     for case_name in saved_cases:
-        cost = get_case_price(case_name)
+        case_name_lower = case_name.lower()
+        cost = get_case_price(case_name_lower)
+
+        release_date = case_release_dates.get(case_name_lower, "Unknown")
+
         if cost is not None:
-            prices_text += f"{case_name}: ${cost:.2f}\n"
+            prices_text += f"{case_name}: ${cost:.2f}   Released: {release_date}\n"
         else:
             prices_text += f"{case_name}: Case not found\n"
 
     result_label.config(text=prices_text)
+    # Resize result_label based on the current height of csgo_cases
+    result_label.config(height=len(saved_cases))
 
 
 def add_case():
@@ -107,6 +111,51 @@ def load_saved_cases():
     return []
 
 
+# Dictionary containing case names and their release dates
+case_release_dates = {
+    "Revolution Case": "09-02-2023",
+    "Recoil Case": "01-07-2022",
+    "Dreams & Nightmares Case": "20-01-2022",
+    "Operation Riptide Case": "22-09-2021",
+    "Snakebite Case": "03-05-2021",
+    "Operation Broken Fang Case": "03-12-2020",
+    "Fracture Case": "06-08-2020",
+    "Prisma 2 Case": "31-03-2020",
+    "Shattered Web Case": "18-11-2019",
+    "CS20 Case": "18-09-2019",
+    "Prisma Case": "13-03-2019",
+    "Danger Zone Case": "06-12-2018",
+    "Horizon Case": "31-07-2018",
+    "Clutch Case": "15-02-2018",
+    "Spectrum 2 Case": "13-11-2017",
+    "Operation Hydra Case": "23-05-2017",
+    "Spectrum Case": "15-03-2017",
+    "Glove Case": "28-11-2016",
+    "Gamma 2 Case": "17-05-2016",
+    "Gamma Case": "04-05-2016",
+    "Chroma 3 Case": "17-02-2016",
+    "Operation Wildfire Case": "17-02-2016",
+    "Revolver Case": "08-12-2015",
+    "Shadow Case": "17-09-2015",
+    "Falchion Case": "01-07-2015",
+    "Chroma 2 Case": "26-05-2015",
+    "Chroma Case": "08-01-2015",
+    "Operation Vanguard Weapon Case": "11-11-2014",
+    "eSports 2014 Summer Case": "11-06-2014",
+    "Operation Breakout Weapon Case": "02-07-2014",
+    "Huntsman Weapon Case": "01-05-2014",
+    "Operation Phoenix Weapon Case": "20-02-2014",
+    "CS:GO Weapon Case 3": "14-11-2013",
+    "eSports 2013 Winter Case": "14-11-2013",
+    "Winter Offensive Weapon Case": "18-12-2013",
+    "CS:GO Weapon Case 2": "19-09-2013",
+    "Operation Bravo Case": "19-09-2013",
+    "eSports 2013 Case": "14-08-2013",
+    "CS:GO Weapon Case": "14-08-2013",
+}
+case_release_dates = {key.lower(): value for key, value in case_release_dates.items()}
+
+
 if __name__ == '__main__':
 
     # Check if saved_cases.json exists, create it if not
@@ -118,11 +167,13 @@ if __name__ == '__main__':
     with open("saved_cases.json", "r") as file:
         csgo_cases = json.load(file)
 
+
+
     # Create the main window
     window = tk.Tk()
     window.title("CS:GO Case Prices")
     # Set the size of the main window
-    window.geometry("525x850")
+    window.geometry("525x900")
 
     # Create an entry widget for the case name
     case_entry_label = tk.Label(window, text="Enter Case Name:")

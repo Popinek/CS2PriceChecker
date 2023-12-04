@@ -3,7 +3,13 @@ import requests
 import json
 import os
 from datetime import datetime
+
+price_cache = {}
+
 def get_case_price(case_name):
+    if case_name in price_cache:
+        return price_cache[case_name]
+
     url = "https://raw.githubusercontent.com/jonese1234/Csgo-Case-Data/master/latest.json"
     response = requests.get(url)
 
@@ -16,6 +22,8 @@ def get_case_price(case_name):
                     cost = data.get("Cost")
                     if cost is not None:
                         print(f"Debug: Found case data for {case_name}. Cost: {cost}")
+                        # Cache the price
+                        price_cache[case_name] = cost
                         return cost
                     else:
                         print(f"Debug: Found case data for {case_name}, but cost is missing.")
@@ -38,6 +46,7 @@ def get_case_price(case_name):
     print(f"Debug: Unable to find case data for {case_name}.")
     return None
 
+
 def show_case_prices():
     # Load saved cases from the file
     saved_cases = load_saved_cases()
@@ -51,16 +60,24 @@ def show_case_prices():
     for case_name in saved_cases:
         case_name_lower = case_name.lower()
         cost = get_case_price(case_name_lower)
-        release_date = case_release_dates.get(case_name_lower, "Unknown")
+        case_info = case_release_dates.get(case_name_lower, {"case number": "Unknown", "release_date": "Unknown"})
+
+        if isinstance(case_info, dict):
+            case_number = case_info.get("case number", "Unknown")
+            release_date = case_info.get("release_date", "Unknown")
+        else:
+            case_number = "Unknown"
+            release_date = "Unknown"
 
         if cost is not None:
-            prices_text += f"{case_name}: ${cost:.2f}   Released: {release_date}\n"
+            prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}\n"
         else:
-            prices_text += f"{case_name}: Case not found\n"
+            prices_text += f"{case_name}: Cost not found\n"
 
     result_label.config(text=prices_text)
     # Resize result_label based on the current height of csgo_cases
     result_label.config(height=len(saved_cases))
+
 
 def add_case():
     case_name = case_entry.get()
@@ -102,45 +119,45 @@ def load_saved_cases():
 
 # Dictionary containing case names and their release dates
 case_release_dates = {
-    "revolution case": "09-02-2023",
-    "recoil case": "01-07-2022",
-    "dreams & nightmares case": "20-01-2022",
-    "operation riptide case": "22-09-2021",
-    "snakebite case": "03-05-2021",
-    "operation broken fang case": "03-12-2020",
-    "fracture case": "06-08-2020",
-    "prisma 2 case": "31-03-2020",
-    "shattered web case": "18-11-2019",
-    "cs20 case": "18-09-2019",
-    "prisma case": "13-03-2019",
-    "danger zone case": "06-12-2018",
-    "horizon case": "31-07-2018",
-    "clutch case": "15-02-2018",
-    "spectrum 2 case": "13-11-2017",
-    "operation hydra case": "23-05-2017",
-    "spectrum case": "15-03-2017",
-    "glove case": "28-11-2016",
-    "gamma 2 case": "17-05-2016",
-    "gamma case": "04-05-2016",
-    "chroma 3 case": "17-02-2016",
-    "operation wildfire case": "17-02-2016",
-    "revolver case": "08-12-2015",
-    "shadow case": "17-09-2015",
-    "falchion case": "01-07-2015",
-    "chroma 2 case": "26-05-2015",
-    "chroma case": "08-01-2015",
-    "operation vanguard weapon case": "11-11-2014",
-    "esports 2014 summer case": "11-06-2014",
-    "operation breakout weapon case": "02-07-2014",
-    "huntsman weapon case": "01-05-2014",
-    "operation phoenix weapon case": "20-02-2014",
-    "cs:go weapon case 3": "14-11-2013",
-    "esports 2013 winter case": "14-11-2013",
-    "winter offensive weapon case": "18-12-2013",
-    "cs:go weapon case 2": "19-09-2013",
-    "operation bravo case": "19-09-2013",
-    "esports 2013 case": "14-08-2013",
-    "cs:go weapon case": "14-08-2013",
+    "revolution case": {"case number": "39", "release_date": "09-02-2023"},
+    "recoil case": {"case number": "38", "release_date": "01-07-2022"},
+    "dreams & nightmares case": {"case number": "37", "release_date": "20-01-2022"},
+    "operation riptide case": {"case number": "36", "release_date": "22-09-2021"},
+    "snakebite case": {"case number": "35", "release_date": "03-05-2021"},
+    "operation broken fang case": {"case number": "34", "release_date": "03-12-2020"},
+    "fracture case": {"case number": "33", "release_date": "06-08-2020"},
+    "prisma 2 case": {"case number": "32", "release_date": "31-03-2020"},
+    "shattered web case": {"case number": "31", "release_date": "18-11-2019"},
+    "cs20 case": {"case number": "30", "release_date": "18-09-2019"},
+    "prisma case": {"case number": "29", "release_date": "13-03-2019"},
+    "danger zone case": {"case number": "28", "release_date": "06-12-2018"},
+    "horizon case": {"case number": "27", "release_date": "31-07-2018"},
+    "clutch case": {"case number": "26", "release_date": "15-02-2018"},
+    "spectrum 2 case": {"case number": "25", "release_date": "13-11-2017"},
+    "operation hydra case": {"case number": "24", "release_date": "23-05-2017"},
+    "spectrum case": {"case number": "23", "release_date": "15-03-2017"},
+    "glove case": {"case number": "22", "release_date": "28-11-2016"},
+    "gamma 2 case": {"case number": "21", "release_date": "17-05-2016"},
+    "gamma case": {"case number": "20", "release_date": "04-05-2016"},
+    "chroma 3 case": {"case number": "19", "release_date": "17-02-2016"},
+    "operation wildfire case": {"case number": "18", "release_date": "17-02-2016"},
+    "revolver case": {"case number": "17", "release_date": "08-12-2015"},
+    "shadow case": {"case number": "16", "release_date": "17-09-2015"},
+    "falchion case": {"case number": "15", "release_date": "01-07-2015"},
+    "chroma 2 case": {"case number": "14", "release_date": "26-05-2015"},
+    "chroma case": {"case number": "13", "release_date": "08-01-2015"},
+    "operation vanguard weapon case": {"case number": "12", "release_date": "11-11-2014"},
+    "esports 2014 summer case": {"case number": "11", "release_date": "11-06-2014"},
+    "operation breakout weapon case": {"case number": "10", "release_date": "02-07-2014"},
+    "huntsman weapon case": {"case number": "9", "release_date": "01-05-2014"},
+    "operation phoenix weapon case": {"case number": "8", "release_date": "20-02-2014"},
+    "cs:go weapon case 3": {"case number": "7", "release_date": "14-11-2013"},
+    "esports 2013 winter case": {"case number": "6", "release_date": "14-11-2013"},
+    "winter offensive weapon case": {"case number": "5", "release_date": "18-12-2013"},
+    "cs:go weapon case 2": {"case number": "4", "release_date": "19-09-2013"},
+    "operation bravo case": {"case number": "3", "release_date": "19-09-2013"},
+    "esports 2013 case": {"case number": "2", "release_date": "14-08-2013"},
+    "cs:go weapon case": {"case number": "1", "release_date": "14-08-2013"},
 }
 case_release_dates = {key.lower(): value for key, value in case_release_dates.items()}
 
@@ -158,6 +175,7 @@ def sort_by_price():
     else:
         price_sort_order = "asc"
 
+    # Sort based on the case prices
     saved_cases.sort(key=lambda case: (get_case_price(case.lower()) or float('inf'), case), reverse=(price_sort_order == "desc"))
     display_sorted_cases(saved_cases)
 
@@ -171,7 +189,7 @@ def sort_by_date():
     else:
         date_sort_order = "asc"
 
-    saved_cases.sort(key=lambda case: (datetime.strptime(case_release_dates.get(case.lower(), "9999-99-99"), "%d-%m-%Y"), case), reverse=(date_sort_order == "desc"))
+    saved_cases.sort(key=lambda case: (datetime.strptime(case_release_dates.get(case.lower(), {}).get("release_date", "9999-99-99"), "%d-%m-%Y") or datetime.max, case), reverse=(date_sort_order == "desc"))
     display_sorted_cases(saved_cases)
 
 def display_sorted_cases(sorted_cases):
@@ -179,16 +197,21 @@ def display_sorted_cases(sorted_cases):
 
     for case_name in sorted_cases:
         case_name_lower = case_name.lower()
+        case_info = case_release_dates.get(case_name_lower, {})
+        case_number = case_info.get("case number", "Unknown")
+        release_date = case_info.get("release_date", "Unknown")
+
+        # Use the cached price if available, otherwise fetch and cache it
         cost = get_case_price(case_name_lower)
-        release_date = case_release_dates.get(case_name_lower, "Unknown")
 
         if cost is not None:
-            prices_text += f"{case_name}: ${cost:.2f}   Released: {release_date}\n"
+            prices_text += f"{case_number} {case_name}: ${cost:.2f}   {release_date}\n"
         else:
             prices_text += f"{case_name}: Case not found\n"
 
     result_label.config(text=prices_text)
     result_label.config(height=len(sorted_cases))
+
 
 if __name__ == '__main__':
     # Check if saved_cases.json exists, create it if not

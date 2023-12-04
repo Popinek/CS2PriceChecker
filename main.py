@@ -7,6 +7,7 @@ from datetime import datetime
 price_cache = {}
 
 def get_case_price(case_name):
+    # Cache the prices, no need to fetch prices every time
     if case_name in price_cache:
         return price_cache[case_name]
 

@@ -278,6 +278,9 @@ if __name__ == '__main__':
     # Load saved cases on startup
     load_cases()
 
+    # Load prices at startup
+    show_case_prices()
+
     # Start the GUI event loop
     window.mainloop()
 

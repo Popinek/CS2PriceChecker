@@ -230,48 +230,57 @@ if __name__ == '__main__':
     # Set the size of the main window
     window.geometry("525x900")
 
+    # Create a main frame for the entire layout
+    main_frame = tk.Frame(window)
+    main_frame.pack()
+
     # Create an entry widget for the case name
-    case_entry_label = tk.Label(window, text="Enter Case Name:")
-    case_entry = tk.Entry(window)
+    case_entry_label = tk.Label(main_frame, text="Enter Case Name:")
+    case_entry = tk.Entry(main_frame)
 
     # Create buttons
-    get_prices_button = tk.Button(window, text="Get Prices", command=show_case_prices)
-    add_case_button = tk.Button(window, text="Add Case", command=add_case)
-    remove_case_button = tk.Button(window, text="Remove Case", command=remove_case)
-    price_button = tk.Button(window, text="Price", command=sort_by_price)
-    date_button = tk.Button(window, text="Released Date", command=sort_by_date)
+    get_prices_button = tk.Button(main_frame, text="Get Prices", command=show_case_prices)
+    add_case_button = tk.Button(main_frame, text="Add Case", command=add_case)
+    remove_case_button = tk.Button(main_frame, text="Remove Case", command=remove_case)
+    sort_label = tk.Label(main_frame, text="Sort by:")
 
-    # Pack the buttons to the top of the window
-    case_entry_label.pack(side=tk.TOP, padx=10, pady=25)
-    case_entry.pack(side=tk.TOP, padx=10, pady=20)
-    add_case_button.pack(side=tk.TOP, padx=10, pady=10)
+
+    # Pack the widgets in the main frame
+    case_entry_label.pack(side=tk.TOP, padx=10, pady=5)
+    case_entry.pack(side=tk.TOP, padx=10, pady=5)
+    add_case_button.pack(side=tk.TOP, padx=10, pady=5)
     remove_case_button.pack(side=tk.TOP, padx=10, pady=5)
-    get_prices_button.pack(side=tk.TOP, padx=10, pady=15)
-    price_button.pack(side=tk.TOP, padx=10, pady=5)
-    date_button.pack(side=tk.TOP, padx=10, pady=5)
+    get_prices_button.pack(side=tk.TOP, padx=10, pady=5)
+    sort_label.pack(side=tk.TOP, padx=10, pady=5)
+
+    # Create a frame for the Price and Released Date buttons
+    buttons_frame = tk.Frame(main_frame)
+    buttons_frame.pack(side=tk.TOP, padx=10, pady=5)
+    price_button = tk.Button(buttons_frame, text="Price", command=sort_by_price)
+    date_button = tk.Button(buttons_frame, text="Released Date", command=sort_by_date)
+
+    # Pack the Price and Released Date buttons inside the frame
+    price_button.pack(side=tk.LEFT, padx=5)
+    date_button.pack(side=tk.LEFT, padx=5)
+
+    # Create a frame for cases_listbox and result_label together
+    listbox_result_frame = tk.Frame(main_frame)
+    listbox_result_frame.pack(side=tk.LEFT, padx=5, pady=5)
 
     # Create a listbox to display added cases
-    cases_listbox = tk.Listbox(window, selectmode=tk.SINGLE, height=len(csgo_cases))
-    cases_listbox.pack(side=tk.LEFT, padx=10, pady=10, anchor='n')
-
-    # Set the initial height of the listbox
-    cases_listbox.configure(width=35, height=len(cases_listbox.get(0, tk.END)))
+    cases_listbox = tk.Listbox(listbox_result_frame, selectmode=tk.SINGLE, height=len(csgo_cases))
+    cases_listbox.configure(width=30, height=len(cases_listbox.get(0, tk.END)))
+    cases_listbox.pack(side=tk.LEFT, padx=5, pady=12, anchor='n')
 
     # Create a label widget to display the result
-    result_label = tk.Label(window, text="", height=len(csgo_cases), pady=5, font=("Helvetica", 10))
-    result_label.pack(side=tk.LEFT, padx=10, pady=12, anchor='n')
+    result_label = tk.Label(listbox_result_frame, text="", height=len(csgo_cases), pady=5, font=("Helvetica", 10))
 
-    # Pack the widgets into the window
-    case_entry_label.pack(pady=5)
-    case_entry.pack(pady=5)
-    add_case_button.pack(pady=5)
-    remove_case_button.pack(pady=5)
-    get_prices_button.pack(pady=5)
-    price_button.pack(pady=5)
-    date_button.pack(pady=5)
+    result_label.pack(side=tk.LEFT, padx=35, pady=12, anchor='n')
+
 
     # Right-click functionality
     # cases_listbox.bind("<Button-3>", lambda event: remove_case())
+
     # Bind the Delete key to remove_case
     window.bind("<Delete>", lambda event: remove_case())
 

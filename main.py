@@ -16,11 +16,12 @@ def get_steam_charts_data():
 
         # Extract "24-hour peak" and "all-time peak" information
         peaks_container = soup.find_all("div", class_="app-stat")
-        if len(peaks_container) >= 2:
+        if len(peaks_container) >= 3:
+            playing_now = peaks_container[0].find("span", class_="num").get_text(strip=True)
             peak_24h = peaks_container[1].find("span", class_="num").get_text(strip=True)
             peak_all_time = peaks_container[2].find("span", class_="num").get_text(strip=True)
-            print(f"24-hour peak: {peak_24h}\nAll-time peak: {peak_all_time}")
-            return f"24-hour peak: {peak_24h} -- All-time peak: {peak_all_time}"
+            print(f"Playing now: {playing_now} -- 24-hour peak: {peak_24h} -- All-time peak: {peak_all_time}")
+            return f"Playing now: {playing_now} -- 24-hour peak: {peak_24h} -- All-time peak: {peak_all_time}"
         else:
             print("Unable to retrieve peak data")
             return "Unable to retrieve peak data"

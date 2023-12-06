@@ -3,6 +3,35 @@ import requests
 import json
 import os
 from datetime import datetime
+from io import BytesIO
+from PIL import Image, ImageTk
+from bs4 import BeautifulSoup
+
+def get_steam_charts_data():
+    url = "https://steamcharts.com/app/730"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Extract "24-hour peak" and "all-time peak" information
+        peaks_container = soup.find_all("div", class_="app-stat")
+        if len(peaks_container) >= 2:
+            peak_24h = peaks_container[1].find("span", class_="num").get_text(strip=True)
+            peak_all_time = peaks_container[2].find("span", class_="num").get_text(strip=True)
+            print(f"24-hour peak: {peak_24h}\nAll-time peak: {peak_all_time}")
+            return f"24-hour peak: {peak_24h} -- All-time peak: {peak_all_time}"
+        else:
+            print("Unable to retrieve peak data")
+            return "Unable to retrieve peak data"
+    else:
+        print("Unable to fetch data from Steam Charts")
+        return "Unable to fetch data from Steam Charts"
+
+def refresh_steam_charts_data(event=None):
+    steam_charts_data = get_steam_charts_data()
+    steam_charts_label.config(text=steam_charts_data)
+
 
 price_cache = {}
 
@@ -274,8 +303,14 @@ if __name__ == '__main__':
 
     # Create a label widget to display the result
     result_label = tk.Label(listbox_result_frame, text="", height=len(csgo_cases), pady=5, font=("Helvetica", 10))
-
     result_label.pack(side=tk.LEFT, padx=35, pady=12, anchor='n')
+
+    # Create a label to display the data
+    steam_charts_label = tk.Label(window, text="", font=("Helvetica", 10), cursor="hand2")
+    steam_charts_label.pack(side=tk.BOTTOM, padx=10, pady=5, anchor='s')
+
+    # Bind the label to the refresh function
+    steam_charts_label.bind("<Button-1>", refresh_steam_charts_data)
 
 
     # Right-click functionality
@@ -289,6 +324,9 @@ if __name__ == '__main__':
 
     # Load prices at startup
     show_case_prices()
+
+    # Fetch Steam Charts data on startup
+    refresh_steam_charts_data()
 
     # Start the GUI event loop
     window.mainloop()

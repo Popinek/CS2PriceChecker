@@ -14,7 +14,7 @@ def get_steam_charts_data():
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extract "24-hour peak" and "all-time peak" information
+        # Extract information
         peaks_container = soup.find_all("div", class_="app-stat")
         if len(peaks_container) >= 3:
             playing_now = peaks_container[0].find("span", class_="num").get_text(strip=True)
@@ -77,7 +77,30 @@ def get_case_price(case_name):
     print(f"Debug: Unable to find case data for {case_name}.")
     return None
 
+def get_csgoskins_data(case_name):
+    url = f"https://csgoskins.gg/items/{case_name.replace(' ', '-').lower()}"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    response = requests.get(url, headers=headers)
 
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Extract price
+        price_element = soup.find('span', class_='font-bold text-xl')
+        price = price_element.text.strip() if price_element else None
+
+        # Extract 24h price change
+        price_change_element = soup.find('div', string=lambda text: '24h Price Change' in (text or ''))
+        if price_change_element:
+            price_change = price_change_element.find_next('div', class_='flex-grow').text.strip()
+        else:
+            price_change = None
+
+        return price, price_change
+    else:
+        print(f"Unable to fetch data from {url}")
+        return None, None
 def show_case_prices():
     # Load saved cases from the file
     saved_cases = load_saved_cases()
@@ -100,8 +123,11 @@ def show_case_prices():
             case_number = "Unknown"
             release_date = "Unknown"
 
+        # Get additional data from csgoskins.gg
+        price, price_change = get_csgoskins_data(case_name)
+
         if cost is not None:
-            prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}\n"
+            prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}  {price}  {price_change}\n"
         else:
             prices_text += f"{case_name}: Cost not found\n"
 
@@ -258,7 +284,7 @@ if __name__ == '__main__':
     window = tk.Tk()
     window.title("CS:GO Case Prices")
     # Set the size of the main window
-    window.geometry("525x900")
+    window.geometry("1200x900")
 
     # Create a main frame for the entire layout
     main_frame = tk.Frame(window)
@@ -300,11 +326,11 @@ if __name__ == '__main__':
     # Create a listbox to display added cases
     cases_listbox = tk.Listbox(listbox_result_frame, selectmode=tk.SINGLE, height=len(csgo_cases))
     cases_listbox.configure(width=30, height=len(cases_listbox.get(0, tk.END)))
-    cases_listbox.pack(side=tk.LEFT, padx=5, pady=12, anchor='n')
+    cases_listbox.pack(side=tk.LEFT, padx=55, pady=12, anchor='n')
 
     # Create a label widget to display the result
     result_label = tk.Label(listbox_result_frame, text="", height=len(csgo_cases), pady=5, font=("Helvetica", 10))
-    result_label.pack(side=tk.LEFT, padx=35, pady=12, anchor='n')
+    result_label.pack(side=tk.LEFT, padx=5, pady=12, anchor='n')
 
     # Create a label to display the data
     steam_charts_label = tk.Label(window, text="", font=("Helvetica", 10), cursor="hand2")

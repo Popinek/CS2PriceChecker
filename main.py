@@ -6,6 +6,7 @@ from datetime import datetime
 from io import BytesIO
 from PIL import Image, ImageTk
 from bs4 import BeautifulSoup
+import webbrowser
 
 def get_steam_charts_data():
     url = "https://steamcharts.com/app/730"
@@ -93,7 +94,7 @@ def get_csgoskins_data(case_name):
         # Extract 24h price change
         price_change_element = soup.find('div', string=lambda text: '24h Price Change' in (text or ''))
         if price_change_element:
-            price_change = price_change_element.find_next('div', class_='flex-grow').text.strip()
+            price_change = price_change_element.find_next('div', class_='flex-grow').text.strip().replace("\n", " ")
         else:
             price_change = None
 
@@ -101,6 +102,12 @@ def get_csgoskins_data(case_name):
     else:
         print(f"Unable to fetch data from {url}")
         return None, None
+
+
+def open_dmarket_link(url):
+    webbrowser.open_new(url)
+
+
 def show_case_prices():
     # Load saved cases from the file
     saved_cases = load_saved_cases()
@@ -127,7 +134,15 @@ def show_case_prices():
         price, price_change = get_csgoskins_data(case_name)
 
         if cost is not None:
-            prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}  {price}  {price_change}\n"
+            # Create a clickable label for DMarket
+            dmarket_label = tk.Label(listbox_result_frame, text=f"DMarket: {price}\n", cursor="hand2", fg="blue"
+                                         , height=len(csgo_cases), pady=5, font=("Helvetica", 10))
+            dmarket_label.bind("<Button-1>",
+                               lambda e, url=f"https://dmarket.com/ingame-items/item-list/csgo-skins/misc/container?title={case_name}": open_dmarket_link(url))
+            dmarket_label.pack(side=tk.LEFT, padx=5, pady=12, anchor='n')
+
+
+            prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}  DMarket: {price}  Price Change: {price_change}\n"
         else:
             prices_text += f"{case_name}: Cost not found\n"
 
@@ -326,7 +341,7 @@ if __name__ == '__main__':
     # Create a listbox to display added cases
     cases_listbox = tk.Listbox(listbox_result_frame, selectmode=tk.SINGLE, height=len(csgo_cases))
     cases_listbox.configure(width=30, height=len(cases_listbox.get(0, tk.END)))
-    cases_listbox.pack(side=tk.LEFT, padx=55, pady=12, anchor='n')
+    cases_listbox.pack(side=tk.LEFT, padx=5, pady=12, anchor='n')
 
     # Create a label widget to display the result
     result_label = tk.Label(listbox_result_frame, text="", height=len(csgo_cases), pady=5, font=("Helvetica", 10))

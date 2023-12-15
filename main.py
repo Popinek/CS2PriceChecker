@@ -134,12 +134,23 @@ def show_case_prices():
         price, price_change = get_csgoskins_data(case_name)
 
         if cost is not None:
+            
             # Create a clickable label for DMarket
-            dmarket_label = tk.Label(listbox_result_frame, text=f"DMarket: {price}\n", cursor="hand2", fg="blue"
-                                         , height=len(csgo_cases), pady=5, font=("Helvetica", 10))
-            dmarket_label.bind("<Button-1>",
-                               lambda e, url=f"https://dmarket.com/ingame-items/item-list/csgo-skins/misc/container?title={case_name}": open_dmarket_link(url))
-            dmarket_label.pack(side=tk.LEFT, padx=5, pady=12, anchor='n')
+            dmarket_label = tk.Label(
+                listbox_result_frame,
+                text=f"DMarket: {price}",
+                cursor="hand2",
+                fg="blue",
+                font=("Helvetica", 10)
+            )
+            # Create bind to left click
+            dmarket_label.bind(
+                "<Button-1>",
+                lambda e,
+                       url=f"https://dmarket.com/ingame-items/item-list/csgo-skins/misc/container?title={case_name}": open_dmarket_link(
+                    url)
+            )
+            dmarket_label.pack(side=tk.TOP, padx=0, pady=(0, 0))
 
 
             prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}  DMarket: {price}  Price Change: {price_change}\n"

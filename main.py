@@ -8,48 +8,74 @@ from PIL import Image, ImageTk
 from bs4 import BeautifulSoup
 import webbrowser
 
+
 def get_steam_charts_data():
+    # URL of the Steam Charts page for CS:GO
     url = "https://steamcharts.com/app/730"
+
+    # Send a GET request to the URL
     response = requests.get(url)
 
+    # Check if the request was successful (status code 200)
     if response.status_code == 200:
+        # Parse the HTML content of the page
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extract information
+        # Extract information about the current number of players and peak stats
         peaks_container = soup.find_all("div", class_="app-stat")
         if len(peaks_container) >= 3:
+            # Extract the number of players currently in-game
             playing_now = peaks_container[0].find("span", class_="num").get_text(strip=True)
+
+            # Extract the 24-hour peak number of players
             peak_24h = peaks_container[1].find("span", class_="num").get_text(strip=True)
+
+            # Extract the all-time peak number of players
             peak_all_time = peaks_container[2].find("span", class_="num").get_text(strip=True)
+
+            # Print and return the extracted data
             print(f"Playing now: {playing_now} -- 24-hour peak: {peak_24h} -- All-time peak: {peak_all_time}")
             return f"Playing now: {playing_now} -- 24-hour peak: {peak_24h} -- All-time peak: {peak_all_time}"
         else:
+            # Print an error message if peak data is not found
             print("Unable to retrieve peak data")
             return "Unable to retrieve peak data"
     else:
+        # Print an error message if the request to Steam Charts fails
         print("Unable to fetch data from Steam Charts")
         return "Unable to fetch data from Steam Charts"
 
 def refresh_steam_charts_data(event=None):
+    # Call the function to get Steam Charts data
     steam_charts_data = get_steam_charts_data()
+
+    # Update the text of the steam_charts_label with the obtained data
     steam_charts_label.config(text=steam_charts_data)
 
 
 price_cache = {}
+
 
 def get_case_price(case_name):
     # Cache the prices, no need to fetch prices every time
     if case_name in price_cache:
         return price_cache[case_name]
 
+    # URL to fetch case price data
     url = "https://raw.githubusercontent.com/jonese1234/Csgo-Case-Data/master/latest.json"
+
+    # Make a GET request to fetch the data
     response = requests.get(url)
 
+    # Check if the request was successful
     if response.status_code == 200:
+        # Parse the JSON data
         data = response.json()
 
+        # Function to recursively find the cost of the specified case
         def find_cost_recursive(data):
             if isinstance(data, dict):
+                # Check if the current dictionary contains the specified case
                 if "Name" in data and data["Name"].lower() == case_name.lower():
                     cost = data.get("Cost")
                     if cost is not None:
@@ -61,22 +87,27 @@ def get_case_price(case_name):
                         print(f"Debug: Found case data for {case_name}, but cost is missing.")
                         return None
 
+                # Recursively search for the case in nested dictionaries
                 for key, value in data.items():
                     result = find_cost_recursive(value)
                     if result is not None:
                         return result
             elif isinstance(data, list):
+                # Recursively search for the case in nested lists
                 for item in data:
                     result = find_cost_recursive(item)
                     if result is not None:
                         return result
 
+        # Call the recursive function to find the cost
         cost = find_cost_recursive(data)
         if cost is not None:
             return cost
 
+    # Log a message if unable to find case data
     print(f"Debug: Unable to find case data for {case_name}.")
     return None
+
 
 def get_csgoskins_data(case_name):
     url = f"https://csgoskins.gg/items/{case_name.replace(' ', '-').lower()}"

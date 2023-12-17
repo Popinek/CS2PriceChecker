@@ -110,27 +110,37 @@ def get_case_price(case_name):
 
 
 def get_csgoskins_data(case_name):
+    # Generate the URL based on the provided case name
     url = f"https://csgoskins.gg/items/{case_name.replace(' ', '-').lower()}"
+
+    # Set the User-Agent header to simulate a request from a web browser
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+
+    # Send a GET request to the specified URL with the headers
     response = requests.get(url, headers=headers)
 
+    # Check if the request was successful (status code 200)
     if response.status_code == 200:
+        # Parse the HTML content of the page using BeautifulSoup
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extract price
+        # Extract the price information from the HTML
         price_element = soup.find('span', class_='font-bold text-xl')
         price = price_element.text.strip() if price_element else None
 
-        # Extract 24h price change
+        # Extract the 24-hour price change information from the HTML
         price_change_element = soup.find('div', string=lambda text: '24h Price Change' in (text or ''))
         if price_change_element:
+            # Find the next div with class 'flex-grow' to get the actual price change value
             price_change = price_change_element.find_next('div', class_='flex-grow').text.strip().replace("\n", " ")
         else:
             price_change = None
 
+        # Return the extracted price and 24-hour price change
         return price, price_change
     else:
+        # If the request was not successful, print an error message
         print(f"Unable to fetch data from {url}")
         return None, None
 

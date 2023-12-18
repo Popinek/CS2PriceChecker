@@ -149,33 +149,35 @@ def open_dmarket_link(url):
     webbrowser.open_new(url)
 
 
+# Function to show case prices in a Tkinter GUI
 def show_case_prices():
     # Load saved cases from the file
     saved_cases = load_saved_cases()
 
+    # Check if there are no saved cases
     if not saved_cases:
         result_label.config(text="No saved cases found.")
         return
 
     prices_text = ""
 
+    # Iterate over each saved case
     for case_name in saved_cases:
         case_name_lower = case_name.lower()
-        cost = get_case_price(case_name_lower)
-        case_info = case_release_dates.get(case_name_lower, {"case number": "Unknown", "release_date": "Unknown"})
 
-        if isinstance(case_info, dict):
-            case_number = case_info.get("case number", "Unknown")
-            release_date = case_info.get("release_date", "Unknown")
-        else:
-            case_number = "Unknown"
-            release_date = "Unknown"
+        # Get the cost of the case
+        cost = get_case_price(case_name_lower)
+
+        # Get case information (number and release date) or set defaults
+        case_info = case_release_dates.get(case_name_lower, {"case number": "Unknown", "release_date": "Unknown"})
+        case_number = case_info.get("case number", "Unknown")
+        release_date = case_info.get("release_date", "Unknown")
 
         # Get additional data from csgoskins.gg
         price, price_change = get_csgoskins_data(case_name)
 
+        # Check if the cost is available
         if cost is not None:
-            
             # Create a clickable label for DMarket
             dmarket_label = tk.Label(
                 listbox_result_frame,
@@ -184,7 +186,7 @@ def show_case_prices():
                 fg="blue",
                 font=("Helvetica", 10)
             )
-            # Create bind to left click
+            # Bind left-click to open DMarket link
             dmarket_label.bind(
                 "<Button-1>",
                 lambda e,
@@ -193,13 +195,16 @@ def show_case_prices():
             )
             dmarket_label.pack(side=tk.TOP, padx=0, pady=(0, 0))
 
-
+            # Build the string to display case information
             prices_text += f"{case_number} {case_name}:${cost:.2f}   {release_date}  DMarket: {price}  Price Change: {price_change}\n"
         else:
+            # If cost is not found, display a message
             prices_text += f"{case_name}: Cost not found\n"
 
+    # Update the result_label with the generated prices text
     result_label.config(text=prices_text)
-    # Resize result_label based on the current height of csgo_cases
+
+    # Resize result_label based on the number of saved cases
     result_label.config(height=len(saved_cases))
 
 

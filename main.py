@@ -65,7 +65,7 @@ def get_case_price(case_name):
     url = "https://raw.githubusercontent.com/jonese1234/Csgo-Case-Data/master/latest.json"
 
     # Make a GET request to fetch the data
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -118,7 +118,7 @@ def get_csgoskins_data(case_name):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 
     # Send a GET request to the specified URL with the headers
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -209,42 +209,74 @@ def show_case_prices():
 
 
 def add_case():
+    # Get the case name from the entry field
     case_name = case_entry.get()
+
+    # Check if the case name is not empty
     if case_name:
+        # Insert the case name into the listbox
         cases_listbox.insert(tk.END, case_name)
-        case_entry.delete(0, tk.END)  # Clear the entry field
-        save_cases()  # Save the updated list of cases
+
+        # Clear the entry field
+        case_entry.delete(0, tk.END)
+
+        # Save the updated list of cases
+        save_cases()
+
 
 def remove_case():
+    # Get the index of the selected item in the listbox
     selected_index = cases_listbox.curselection()
+
+    # Check if an item is selected
     if selected_index:
+        # Delete the selected item from the listbox
         cases_listbox.delete(selected_index)
-        save_cases()  # Save the updated list of cases
+
+        # Save the updated list of cases
+        save_cases()
+
 
 def save_cases():
+    # Get all case names from the listbox
     cases = cases_listbox.get(0, tk.END)
+
+    # Save the case names to a JSON file
     with open("saved_cases.json", "w") as file:
         json.dump(list(cases), file)
 
+
 def load_cases():
+    # Check if the saved cases file exists
     if os.path.exists("saved_cases.json"):
         try:
+            # Load the saved cases from the JSON file
             with open("saved_cases.json", "r") as file:
                 cases = json.load(file)
+
+                # Insert each case into the listbox
                 for case in cases:
                     cases_listbox.insert(tk.END, case)
         except json.JSONDecodeError:
             pass  # Ignore if the file is not a valid JSON
 
+
 def load_saved_cases():
+    # Check if the saved cases file exists
     if os.path.exists("saved_cases.json"):
         try:
+            # Load the saved cases from the JSON file
             with open("saved_cases.json", "r") as file:
                 saved_cases = json.load(file)
+
+                # Return the loaded cases
                 return saved_cases
         except json.JSONDecodeError:
             pass  # Ignore if the file is not a valid JSON
+
+    # Return an empty list if the file does not exist or is not valid JSON
     return []
+
 
 # Dictionary containing case names and their release dates
 case_release_dates = {
@@ -294,8 +326,11 @@ case_release_dates = {key.lower(): value for key, value in case_release_dates.it
 price_sort_order = "asc"
 date_sort_order = "asc"
 
+
 def sort_by_price():
     global price_sort_order
+
+    # Load saved cases from the file
     saved_cases = load_saved_cases()
 
     # Toggle sorting order
@@ -305,11 +340,17 @@ def sort_by_price():
         price_sort_order = "asc"
 
     # Sort based on the case prices
-    saved_cases.sort(key=lambda case: (get_case_price(case.lower()) or float('inf'), case), reverse=(price_sort_order == "desc"))
+    saved_cases.sort(key=lambda case: (get_case_price(case.lower()) or float('inf'), case),
+                     reverse=(price_sort_order == "desc"))
+
+    # Display the sorted cases
     display_sorted_cases(saved_cases)
+
 
 def sort_by_date():
     global date_sort_order
+
+    # Load saved cases from the file
     saved_cases = load_saved_cases()
 
     # Toggle sorting order
@@ -318,8 +359,14 @@ def sort_by_date():
     else:
         date_sort_order = "asc"
 
-    saved_cases.sort(key=lambda case: (datetime.strptime(case_release_dates.get(case.lower(), {}).get("release_date", "9999-99-99"), "%d-%m-%Y") or datetime.max, case), reverse=(date_sort_order == "desc"))
+    # Sort based on the release dates
+    saved_cases.sort(key=lambda case: (
+    datetime.strptime(case_release_dates.get(case.lower(), {}).get("release_date", "9999-99-99"),
+                      "%d-%m-%Y") or datetime.max, case), reverse=(date_sort_order == "desc"))
+
+    # Display the sorted cases
     display_sorted_cases(saved_cases)
+
 
 def display_sorted_cases(sorted_cases):
     prices_text = ""
@@ -338,6 +385,7 @@ def display_sorted_cases(sorted_cases):
         else:
             prices_text += f"{case_name}: Case not found\n"
 
+    # Update the result label with the sorted cases
     result_label.config(text=prices_text)
     result_label.config(height=len(sorted_cases))
 
